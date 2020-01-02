@@ -189,6 +189,7 @@ void draw() {
   if (phase.equals("during")) {
     
     //this needs to be reprogrammed to avoid index array out of bounds exception
+    //make a do while for example
     Tweet currentTweet = during.get(bIndex);
     while (currentTweet != null && currentTweet.timelineMs <= currentTime) {
       // create "blurry" permanent dots
