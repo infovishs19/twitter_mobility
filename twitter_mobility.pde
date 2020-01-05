@@ -191,6 +191,7 @@ void draw() {
 
   drawBMap();
   drawDMap();
+  drawFlash();
 
 
   canvas.beginDraw();
@@ -203,7 +204,7 @@ void draw() {
   // display bMap, dMap and flash canvas
   canvas.image(bMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
   canvas.image(dMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
-  //canvas.image(flash, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
+  canvas.image(flash, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
 
   // definition figure
   canvas.rectMode(CORNER);
@@ -269,6 +270,8 @@ void drawBMap() {
 
   // add dots before catastrophe
   if (phase.equals("before")) {
+    
+    ArrayList<Tweet> flashTweets = new ArrayList<Tweet>();
     bMap.beginDraw();
     while (bIndex<before.size()-1 && before.get(bIndex).timelineMs<=currentTime) {
       //println("drawing before " + bIndex + ", " + before.size());
@@ -285,10 +288,26 @@ void drawBMap() {
       bMap.ellipse(current.positionX, current.positionY, 15, 15);
       //bMap.fill(0);
       //bMap.ellipse(current.positionX, current.positionY, 10, 10);
-
+      
+      
+      flashTweets.add(current);
+     
       bIndex++;
     }
     bMap.endDraw();
+    
+    //draw flashes
+    
+     flash.beginDraw();
+     flash.clear();
+    for(Tweet t: flashTweets){
+    // create temporary, flashing points
+      flash.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 75);
+      flash.ellipse(t.positionX, t.positionY, 20, 20);
+    }
+    flash.endDraw();
+      
+    
     // end of before array
     if (bIndex>=before.size()-1) {
       phase = "during";
@@ -324,6 +343,11 @@ void drawDMap() {
       println(phase);
     }
   }
+}
+
+
+void drawFlash(){
+
 }
 
 //void draw() {
