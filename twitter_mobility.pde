@@ -67,6 +67,8 @@ int dIndex = 0;
 //var data = (before = during = []);
 //var timestamp = (bIndex = dIndex = 0);
 
+SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
 // Processing Standard Functions
 void settings() 
 {
@@ -107,13 +109,13 @@ void setup() {
   bMap.beginDraw();
   bMap.noStroke();
   bMap.endDraw();
-  
-  
+
+
   dMap = createGraphics(canvasPropertiesWidth, canvasPropertiesHeight, P3D);
   dMap.beginDraw();
   dMap.noStroke();
   dMap.endDraw();
-  
+
   flash = createGraphics(canvasPropertiesWidth, canvasPropertiesHeight, P3D);
   flash.beginDraw();
   flash.noStroke();
@@ -141,18 +143,27 @@ void setup() {
   //before = data.slice(39563, 257670); // 2014-07-02 - 2014-07-11
   //during = data.slice(257670, 521008); // 2014-07-12 - 2014-07-21
   // console.log(before, during);
-  
-  Date splitDate = new Date(2014,6,11);
-  Date test = new Date(2014,6,11);
+
+  Date splitDate =null;
+  try { 
+    splitDate = df.parse( "2014-07-11 00:00:00"); //new Date(2014, 6, 11);
+  } 
+  catch (ParseException excpt) { 
+    excpt.printStackTrace();
+  } 
+
   println("splitDate");
   println(splitDate);
-  
-  int result = test.compareTo(splitDate);
-  println("result: " + result);
+
   before = new ArrayList<Tweet>();
   during = new ArrayList<Tweet>();
-  for(Tweet t : data){
-    
+  for (Tweet t : data) {
+    Date timestamp = t.timestamp;
+    if (timestamp.compareTo(splitDate)<=0) {
+      before.add(t);
+    } else {
+      during.add(t);
+    }
   }
 
   frameRate(fr);
@@ -166,8 +177,12 @@ void setup() {
 
 void draw() {
 
-  
-  if(frameCount%10 == 0){
+  if (true) {
+    return;
+  }
+
+
+  if (frameCount%10 == 0) {
     println("fps: " + frameRate);
   }
   if (!ready) {
@@ -495,7 +510,7 @@ ArrayList<Tweet> formatData(Table csv, MapProperties mapProperties) {
     0, 
     32);
 
-  SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
   for (TableRow row : csv.rows()) {
 
     float lon = row.getFloat("longitude.anon");

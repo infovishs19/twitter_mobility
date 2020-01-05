@@ -11,8 +11,8 @@ mask = (df['time'] > start_date) & (df['time'] <= end_date)
 df = df.loc[mask]
 
 # sample n elements
-df_sample = df.sample(n=1000)
+df_sample = df.sample(n=10000)
 
 print(df_sample)
 
-df_sample.to_csv('./rammasun_sample_1000.csv', index=False)
+df_sample.to_csv('./rammasun_sample_10000.csv', index=False)
