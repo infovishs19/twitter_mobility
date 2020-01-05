@@ -77,32 +77,36 @@ void settings()
 }
 
 void setup() {
-
-
+  
+ 
+  
   canvas = createGraphics(canvasW, canvasH, P3D);
 
-  // size(7680, 1080,P3D);
-
-  //fontRegular = loadFont("assets/ShareTechMono.ttf");
   fontRegular = createFont("assets/ShareTechMono.ttf", 54);
 
   textFont(fontRegular);
 
-
   // create offscreen canvases
-  canvasBackground = createGraphics(width, height, P3D);
+  canvasBackground = createGraphics(400,300, P3D);
   color c1 = color(cLightBlue[0], cLightBlue[1], cLightBlue[2]);
   color c2 = color(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2]);
+  
+  canvasBackground.beginDraw();
+  canvasBackground.background(255,0,0);
+  canvasBackground.endDraw();
+  
 
 
-  createBackground(
-    (float)width / 2.0, 
-    (float)height / 2.0, 
-    (float)width * 1.2f, 
-    (float) width * 1.2f, 
-    c1, 
-    c2
-    );
+  //createBackground(
+  //  (float)canvas.width / 2.0, 
+  //  (float)canvas.height / 2.0, 
+  //  (float)canvas.width * 1.2f, 
+  //  (float)canvas.width * 1.2f, 
+  //  c1, 
+  //  c2
+  //  );
+    
+    canvasBackground.get().save("canvasBackground2.png");
 
 
   bMap = createGraphics(canvasPropertiesWidth, canvasPropertiesHeight, P3D);
@@ -175,288 +179,288 @@ void setup() {
   ready = true;
 }
 
-void draw() {
-
-  if (true) {
-    return;
-  }
-
-
-  if (frameCount%10 == 0) {
-    println("fps: " + frameRate);
-  }
-  if (!ready) {
-    return;
-  }
-
-
-
-  // clear flash canvas
-  flash.beginDraw();
-  flash.clear();
-  flash.endDraw();
-
-  // calculate current time based on frame rate
-  float currentTime = (timestamp / fr) * 1000;
-
-
-  // add dots before catastrophe
-  if (phase.equals("before")) {
-    Tweet currentTweet = null;
-
-    if (bIndex<before.size()) {
-      currentTweet = before.get(bIndex);
-    }
-
-    // while (currentTweet != null && currentTweet.timelineMs <= currentTime) {
-    while (bIndex < (before.size()-1) && currentTweet.timelineMs <= currentTime) {
-      // create "blurry" permanent dots
-      bMap.beginDraw();
-      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 50);
-      bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 3, 3);
-      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 30);
-      bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 6, 6);
-      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 20);
-      bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 10, 10);
-      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 10);
-      bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 15, 15);
-      bMap.endDraw();
-
-      // create temporary, flashing points
-      flash.beginDraw();
-      flash.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 75);
-      flash.ellipse(currentTweet.positionX, currentTweet.positionY, 20, 20);
-      flash.endDraw();
-
-      bIndex++;
-      currentTweet = before.get(bIndex);
-    }
-    // end of before array
-    if (/*!before[bIndex]*//*currentTweet == null*/bIndex>=(before.size()-1)) {
-      phase = "during";
-      println(phase);
-      // start the recording
-      // capturer.start();
-    }
-  }
-
-  // add dots during catastrophe
-  if (phase.equals("during")) {
-
-    //this needs to be reprogrammed to avoid index array out of bounds exception
-    //make a do while for example
-
-    Tweet currentTweet = null;
-
-    if (dIndex<during.size()) {
-      currentTweet = during.get(dIndex);
-    }
-
-    //while (currentTweet != null && currentTweet.timelineMs <= currentTime) {
-    while (dIndex < (during.size()-1) && currentTweet.timelineMs <= currentTime) {
-      // create "blurry" permanent dots
-      dMap.beginDraw();
-      dMap.fill(cRed[0], cRed[1], cRed[2], 50);
-      dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 3, 3);
-      dMap.fill(cRed[0], cRed[1], cRed[2], 30);
-      dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 6, 6);
-      dMap.fill(cRed[0], cRed[1], cRed[2], 20);
-      dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 10, 10);
-      dMap.fill(cRed[0], cRed[1], cRed[2], 10);
-      dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 15, 15);
-      dMap.endDraw();
-
-      // create temporary, flashing points
-      flash.beginDraw();
-      flash.fill(cRed[0], cRed[1], cRed[2], 75);
-      flash.ellipse(currentTweet.positionX, currentTweet.positionY, 20, 20);
-      flash.endDraw();
-
-      dIndex++;
-      currentTweet = during.get(dIndex);
-    }
-    // end of during array
-    if (/*!during[dIndex]*//*currentTweet == null*/dIndex>=(during.size()-1)) {
-      phase = "end";
-      println(phase);
-    }
-  }
-
+void draw(){
   canvas.beginDraw();
-  canvas.background(0);
-
-  // display centecRed background gradient canvas
-  canvas.imageMode(CORNER);
-  canvas.image(canvasBackground, 0, 0, width, height);
-
-  // display bMap, dMap and flash canvas
-  canvas.image(bMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
-  canvas.image(dMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
-  canvas.image(flash, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
-
-  // definition figure
-  canvas.rectMode(CORNER);
-  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
-  canvas.strokeWeight(1);
-  canvas.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
-  canvas.rect(2080, 80, 300, 20);
-  canvas.fill(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2], 220);
-  canvas.rect(2080, 100, 300, 100);
-  canvas.noStroke();
-
-  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
-  canvas.ellipse(2110, 130, 20, 20);
-  canvas.fill(cRed[0], cRed[1], cRed[2]);
-  canvas.ellipse(2110, 170, 20, 20);
-
-  canvas.textSize(20);
-  canvas.textAlign(LEFT, TOP);
-  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
-  canvas.text("tweets before typhoon", 2110 + 20, 118);
-  canvas.fill(cRed[0], cRed[1], cRed[2]);
-  canvas.text("tweets during typhoon", 2110 + 20, 158);
-
-  // ending overlay
-  if (phase.equals("end")) {
-    canvas.rectMode(CORNER);
-    canvas.fill(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2], fadeOut);
-    canvas.rect(0, 0, width, height);
-    canvas.rectMode(CENTER);
-    canvas.textSize(72);
-    canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], fadeOut);
-    canvas.textAlign(CENTER, CENTER);
-    canvas.text("play  again", width / 2, height / 2);
-
-    if (fadeOut <= 220) {
-      fadeOut += 2;
-    } else {
-      // capturer.stop();
-      // capturer.save();
-    }
-  }
-
-  // display info table
-  canvas.imageMode(CORNER);
-  canvas.image(info, infoPropertiesX, infoPropertiesY);
-
-  // display bMap and dMap mini maps
-  canvas.imageMode(CENTER);
-  canvas.image(bMap, 960, 540, 1920 * 0.75, 1080 * 0.75, 0, 0, 1920 * 4, 1080 * 4);
-  canvas.image(dMap, 960, 540, 1920 * 0.75, 1080 * 0.75, 0, 0, 1920 * 4, 1080 * 4);
-
-  // mini map city label
-  canvas.textAlign(LEFT, TOP);
-  canvas.textSize(30);
-  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
-  canvas.text("Manila, Philippines", 460, 265);
-
-  // detail area indicator rectangle
-  canvas.rectMode(CORNER);
-  canvas.noFill();
-  canvas.strokeWeight(4);
-  if (phase.equals("before")) {
-    canvas.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
-  } else {
-    canvas.stroke(cRed[0], cRed[1], cRed[2]);
-  }
-  if (!phase.equals("end")) {
-    canvas.rect(420, 470, 1080, 202);
-  }
-  canvas.noStroke();
-
-  // get current number of tweets, format with thousand seperator
-  //TODO 
-  //var noTweets = (bIndex + dIndex)
-  //  .toString()
-  //  .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
-  int noTweets =  bIndex +  dIndex;
-
-  // get current date and time (timestamp)
-  String displayDate;
-  if (phase.equals("before")) {
-    displayDate = before.get(bIndex).dateTime;
-  } else if (phase.equals("during")) {
-    displayDate = during.get(dIndex).dateTime;
-  } else {
-    // last date
-    displayDate = during.get(during.size() - 1).dateTime;
-  }
-
-  // split timestamp into date and time
-  //displayDate = displayDate.split(" ");
-  String [] tokens = split(displayDate, " ");
-  //displayDateDay = displayDate[0];
-  String displayDateDay = tokens[0];
-  //displayDateTime = displayDate[1];
-  String displayDateTime = tokens[1];
-
-  // display tweet counter, date and time
-  canvas.fill(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2], 220);
-  canvas.strokeWeight(1);
-  canvas.rectMode(CORNER);
-  if (phase.equals("before")) {
-    canvas.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
-  } else {
-    canvas.stroke(cRed[0], cRed[1], cRed[2]);
-  }
-  canvas.rect(infoPropertiesX, infoPropertiesY + 700, info.width / 2, 135);
-  canvas.rect(
-    infoPropertiesX + info.width / 2, 
-    infoPropertiesX + 700, 
-    info.width / 2, 
-    135
-    );
-  if (phase.equals("before")) {
-    canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
-  } else {
-    canvas.fill(cRed[0], cRed[1], cRed[2]);
-  }
-  canvas.noStroke();
-  canvas.rect(infoPropertiesX, infoPropertiesY + 700, info.width, 20);
-  canvas.textSize(30);
-  canvas.textAlign(LEFT, BASELINE);
-  canvas.text("Nº tweets", infoPropertiesX + 20, infoPropertiesY + 810);
-  canvas.text(
-    "Date", 
-    infoPropertiesX + infoPropertiesWidth / 2 + 20, 
-    infoPropertiesY + 810
-    );
-  canvas.textSize(38);
-  canvas.textAlign(RIGHT, BASELINE);
-  canvas.text(
-    noTweets, 
-    infoPropertiesX + infoPropertiesWidth / 2 - 20, 
-    infoPropertiesY + 810
-    );
-  canvas.text(
-    displayDateTime, 
-    infoPropertiesX + infoPropertiesWidth - 20, 
-    infoPropertiesY + 770
-    );
-  canvas.text(
-    displayDateDay, 
-    infoPropertiesX + infoPropertiesWidth - 20, 
-    infoPropertiesY + 810
-    );
-
+  canvas.background(255,0,0);
   canvas.endDraw();
-  image(canvas, 0, 0, width, height);
-  // playback speed
-  timestamp = timestamp + 15000;
-
-  // check frame rate
-  // if (frameCount % fr == 0) {
-  //   console.log(frameRate());
-  // }
-
-  // selecte canvas to capture
-  // capturer.capture(document.getElementById("defaultCanvas0"));
+   
+  image(canvas,0,0,width,height);
 }
+
+//void draw() {
+  
+  
+//  if (frameCount%10 == 0) {
+//    println("fps: " + frameRate);
+//  }
+//  if (!ready) {
+//    return;
+//  }
+
+
+//  // clear flash canvas
+//  flash.clear();
+
+//  // calculate current time based on frame rate
+//  float currentTime = (timestamp / fr) * 1000;
+
+//  // add dots before catastrophe
+//  if (phase.equals("before")) {
+//    Tweet currentTweet = null;
+
+//    if (bIndex<before.size()) {
+//      currentTweet = before.get(bIndex);
+//    }
+
+//    // while (currentTweet != null && currentTweet.timelineMs <= currentTime) {
+//    while (bIndex < (before.size()-1) && currentTweet.timelineMs <= currentTime) {
+//      // create "blurry" permanent dots
+//      bMap.beginDraw();
+//      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 50);
+//      bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 3, 3);
+//      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 30);
+//      bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 6, 6);
+//      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 20);
+//      bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 10, 10);
+//      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 10);
+//      bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 15, 15);
+//      bMap.endDraw();
+
+//      // create temporary, flashing points
+//      flash.beginDraw();
+//      flash.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 75);
+//      flash.ellipse(currentTweet.positionX, currentTweet.positionY, 20, 20);
+//      flash.endDraw();
+
+//      bIndex++;
+//      currentTweet = before.get(bIndex);
+//    }
+//    // end of before array
+//    if (/*!before[bIndex]*//*currentTweet == null*/bIndex>=(before.size()-1)) {
+//      phase = "during";
+//      println(phase);
+//      // start the recording
+//      // capturer.start();
+//    }
+//  }
+
+//  // add dots during catastrophe
+//  if (phase.equals("during")) {
+
+//    //this needs to be reprogrammed to avoid index array out of bounds exception
+//    //make a do while for example
+
+//    Tweet currentTweet = null;
+
+//    if (dIndex<during.size()) {
+//      currentTweet = during.get(dIndex);
+//    }
+
+//    //while (currentTweet != null && currentTweet.timelineMs <= currentTime) {
+//    while (dIndex < (during.size()-1) && currentTweet.timelineMs <= currentTime) {
+//      // create "blurry" permanent dots
+//      dMap.beginDraw();
+//      dMap.fill(cRed[0], cRed[1], cRed[2], 50);
+//      dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 3, 3);
+//      dMap.fill(cRed[0], cRed[1], cRed[2], 30);
+//      dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 6, 6);
+//      dMap.fill(cRed[0], cRed[1], cRed[2], 20);
+//      dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 10, 10);
+//      dMap.fill(cRed[0], cRed[1], cRed[2], 10);
+//      dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 15, 15);
+//      dMap.endDraw();
+
+//      // create temporary, flashing points
+//      flash.beginDraw();
+//      flash.fill(cRed[0], cRed[1], cRed[2], 75);
+//      flash.ellipse(currentTweet.positionX, currentTweet.positionY, 20, 20);
+//      flash.endDraw();
+
+//      dIndex++;
+//      currentTweet = during.get(dIndex);
+//    }
+//    // end of during array
+//    if (/*!during[dIndex]*//*currentTweet == null*/dIndex>=(during.size()-1)) {
+//      phase = "end";
+//      println(phase);
+//    }
+//  }
+
+//  canvas.beginDraw();
+//  canvas.background(0);
+
+//  // display centecRed background gradient canvas
+//  canvas.imageMode(CORNER);
+//  canvas.image(canvasBackground, 0, 0, width, height);
+
+//  // display bMap, dMap and flash canvas
+//  canvas.image(bMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
+//  canvas.image(dMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
+//  canvas.image(flash, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
+
+//  // definition figure
+//  canvas.rectMode(CORNER);
+//  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+//  canvas.strokeWeight(1);
+//  canvas.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+//  canvas.rect(2080, 80, 300, 20);
+//  canvas.fill(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2], 220);
+//  canvas.rect(2080, 100, 300, 100);
+//  canvas.noStroke();
+
+//  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+//  canvas.ellipse(2110, 130, 20, 20);
+//  canvas.fill(cRed[0], cRed[1], cRed[2]);
+//  canvas.ellipse(2110, 170, 20, 20);
+
+//  canvas.textSize(20);
+//  canvas.textAlign(LEFT, TOP);
+//  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+//  canvas.text("tweets before typhoon", 2110 + 20, 118);
+//  canvas.fill(cRed[0], cRed[1], cRed[2]);
+//  canvas.text("tweets during typhoon", 2110 + 20, 158);
+
+//  // ending overlay
+//  if (phase.equals("end")) {
+//    canvas.rectMode(CORNER);
+//    canvas.fill(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2], fadeOut);
+//    canvas.rect(0, 0, width, height);
+//    canvas.rectMode(CENTER);
+//    canvas.textSize(72);
+//    canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], fadeOut);
+//    canvas.textAlign(CENTER, CENTER);
+//    canvas.text("play  again", width / 2, height / 2);
+
+//    if (fadeOut <= 220) {
+//      fadeOut += 2;
+//    } else {
+//      // capturer.stop();
+//      // capturer.save();
+//    }
+//  }
+
+//  // display info table
+//  canvas.imageMode(CORNER);
+//  canvas.image(info, infoPropertiesX, infoPropertiesY);
+
+//  // display bMap and dMap mini maps
+//  canvas.imageMode(CENTER);
+//  canvas.image(bMap, 960, 540, 1920 * 0.75, 1080 * 0.75, 0, 0, 1920 * 4, 1080 * 4);
+//  canvas.image(dMap, 960, 540, 1920 * 0.75, 1080 * 0.75, 0, 0, 1920 * 4, 1080 * 4);
+
+//  // mini map city label
+//  canvas.textAlign(LEFT, TOP);
+//  canvas.textSize(30);
+//  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+//  canvas.text("Manila, Philippines", 460, 265);
+
+//  // detail area indicator rectangle
+//  canvas.rectMode(CORNER);
+//  canvas.noFill();
+//  canvas.strokeWeight(4);
+//  if (phase.equals("before")) {
+//    canvas.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+//  } else {
+//    canvas.stroke(cRed[0], cRed[1], cRed[2]);
+//  }
+//  if (!phase.equals("end")) {
+//    canvas.rect(420, 470, 1080, 202);
+//  }
+//  canvas.noStroke();
+
+//  // get current number of tweets, format with thousand seperator
+//  //TODO 
+//  //var noTweets = (bIndex + dIndex)
+//  //  .toString()
+//  //  .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+//  int noTweets =  bIndex +  dIndex;
+
+//  // get current date and time (timestamp)
+//  String displayDate;
+//  if (phase.equals("before")) {
+//    displayDate = before.get(bIndex).dateTime;
+//  } else if (phase.equals("during")) {
+//    displayDate = during.get(dIndex).dateTime;
+//  } else {
+//    // last date
+//    displayDate = during.get(during.size() - 1).dateTime;
+//  }
+
+//  // split timestamp into date and time
+//  //displayDate = displayDate.split(" ");
+//  String [] tokens = split(displayDate, " ");
+//  //displayDateDay = displayDate[0];
+//  String displayDateDay = tokens[0];
+//  //displayDateTime = displayDate[1];
+//  String displayDateTime = tokens[1];
+
+//  // display tweet counter, date and time
+//  canvas.fill(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2], 220);
+//  canvas.strokeWeight(1);
+//  canvas.rectMode(CORNER);
+//  if (phase.equals("before")) {
+//    canvas.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+//  } else {
+//    canvas.stroke(cRed[0], cRed[1], cRed[2]);
+//  }
+//  canvas.rect(infoPropertiesX, infoPropertiesY + 700, info.width / 2, 135);
+//  canvas.rect(
+//    infoPropertiesX + info.width / 2, 
+//    infoPropertiesX + 700, 
+//    info.width / 2, 
+//    135
+//    );
+//  if (phase.equals("before")) {
+//    canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+//  } else {
+//    canvas.fill(cRed[0], cRed[1], cRed[2]);
+//  }
+//  canvas.noStroke();
+//  canvas.rect(infoPropertiesX, infoPropertiesY + 700, info.width, 20);
+//  canvas.textSize(30);
+//  canvas.textAlign(LEFT, BASELINE);
+//  canvas.text("Nº tweets", infoPropertiesX + 20, infoPropertiesY + 810);
+//  canvas.text(
+//    "Date", 
+//    infoPropertiesX + infoPropertiesWidth / 2 + 20, 
+//    infoPropertiesY + 810
+//    );
+//  canvas.textSize(38);
+//  canvas.textAlign(RIGHT, BASELINE);
+//  canvas.text(
+//    noTweets, 
+//    infoPropertiesX + infoPropertiesWidth / 2 - 20, 
+//    infoPropertiesY + 810
+//    );
+//  canvas.text(
+//    displayDateTime, 
+//    infoPropertiesX + infoPropertiesWidth - 20, 
+//    infoPropertiesY + 770
+//    );
+//  canvas.text(
+//    displayDateDay, 
+//    infoPropertiesX + infoPropertiesWidth - 20, 
+//    infoPropertiesY + 810
+//    );
+
+//  canvas.endDraw();
+//  image(canvas, 0, 0, width, height);
+//  // playback speed
+//  timestamp = timestamp + 15000;
+
+//  // check frame rate
+//  // if (frameCount % fr == 0) {
+//  //   console.log(frameRate());
+//  // }
+
+//  // selecte canvas to capture
+//  // capturer.capture(document.getElementById("defaultCanvas0"));
+//}
 
 void createBackground(float x, float y, float w, float h, color inner, color outer) {
 
   canvasBackground.beginDraw();
-
+  canvasBackground.background(255,0,0);
 
   //BEGINCOMMENT
   println("createBackground 1 ");
