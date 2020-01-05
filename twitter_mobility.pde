@@ -70,10 +70,11 @@ int dIndex = 0;
 
 SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
+float currentTime = 0;
 // Processing Standard Functions
 void settings() 
 {
-  size(canvasW/2, canvasH/2, P3D);
+  size(canvasW/3, canvasH/3, P3D);
   PJOGL.profile=1;
 }
 
@@ -184,39 +185,12 @@ void setup() {
 void draw() {
 
   // calculate current time based on frame rate
-  float currentTime = (timestamp / fr) * 1000;
+   currentTime = (timestamp / fr) * 1000;
 
   //println(currentTime);
-
-  // add dots before catastrophe
-  if (phase.equals("before")) {
-    bMap.beginDraw();
-    while (bIndex<before.size() && before.get(bIndex).timelineMs<=currentTime) {
-      //println("drawing before " + bIndex + ", " + before.size());
-      // create "blurry" permanent dots
-      Tweet current = before.get(bIndex);
-      // println("current.timelineMs " + current.timelineMs + ", Date: " + current.timeString);
-      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 50);
-      bMap.ellipse(current.positionX, current.positionY, 3, 3);
-      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 30);
-      bMap.ellipse(current.positionX, current.positionY, 6, 6);
-      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 20);
-      bMap.ellipse(current.positionX, current.positionY, 10, 10);
-      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 10);
-      bMap.ellipse(current.positionX, current.positionY, 15, 15);
-      //bMap.fill(0);
-      //bMap.ellipse(current.positionX, current.positionY, 10, 10);
-
-      bIndex++;
-    }
-    bMap.endDraw();
-    // end of before array
-    if (bIndex>=before.size()) {
-      phase = "during";
-      println(phase);
-    }
-  }
-
+  
+  drawBMap();
+  drawDMap();
 
 
   canvas.beginDraw();
@@ -228,7 +202,7 @@ void draw() {
 
   // display bMap, dMap and flash canvas
   canvas.image(bMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
-  //canvas.image(dMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
+  canvas.image(dMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
   //canvas.image(flash, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
 
   // definition figure
@@ -289,6 +263,68 @@ void draw() {
 
   canvas.endDraw();
   image(canvas, 0, 0, width, height);
+}
+
+
+void drawBMap(){
+
+  // add dots before catastrophe
+  if (phase.equals("before")) {
+    bMap.beginDraw();
+    while (bIndex<before.size()-1 && before.get(bIndex).timelineMs<=currentTime) {
+      //println("drawing before " + bIndex + ", " + before.size());
+      // create "blurry" permanent dots
+      Tweet current = before.get(bIndex);
+      // println("current.timelineMs " + current.timelineMs + ", Date: " + current.timeString);
+      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 50);
+      bMap.ellipse(current.positionX, current.positionY, 3, 3);
+      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 30);
+      bMap.ellipse(current.positionX, current.positionY, 6, 6);
+      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 20);
+      bMap.ellipse(current.positionX, current.positionY, 10, 10);
+      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 10);
+      bMap.ellipse(current.positionX, current.positionY, 15, 15);
+      //bMap.fill(0);
+      //bMap.ellipse(current.positionX, current.positionY, 10, 10);
+
+      bIndex++;
+    }
+    bMap.endDraw();
+    // end of before array
+    if (bIndex>=before.size()-1) {
+      phase = "during";
+      println(phase);
+    }
+  }
+}
+
+
+void drawDMap(){
+// add dots during catastrophe
+  if (phase.equals("during")) {
+    dMap.beginDraw();
+    while (dIndex<during.size()-1 && during.get(dIndex).timelineMs <= currentTime) {
+      // create "blurry" permanent dots
+      
+      Tweet current = before.get(dIndex);
+      dMap.fill(cRed[0], cRed[1], cRed[2], 50);
+      dMap.ellipse(current.positionX, current.positionY, 3, 3);
+      dMap.fill(cRed[0], cRed[1], cRed[2], 30);
+      dMap.ellipse(current.positionX, current.positionY, 6, 6);
+      dMap.fill(cRed[0], cRed[1], cRed[2], 20);
+      dMap.ellipse(current.positionX, current.positionY, 10, 10);
+      dMap.fill(cRed[0], cRed[1], cRed[2], 10);
+      dMap.ellipse(current.positionX, current.positionY, 15, 15);
+
+      dIndex++;
+    }
+    dMap.endDraw();
+    // end of during array
+    if (dIndex>=during.size()-1) {
+      phase = "end";
+      println(phase);
+    }
+  }
 }
 
 //void draw() {
