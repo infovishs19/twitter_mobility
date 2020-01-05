@@ -3,6 +3,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.text.*; 
 
+//TODO
+//there is a problem with beginDraw endDraw encapsulated within eachother. 
 
 int canvasW = 7680;
 int canvasH = 1080;
@@ -68,7 +70,7 @@ int dIndex = 0;
 // Processing Standard Functions
 void settings() 
 {
-  size(1280, 180, P3D);
+  size(canvasW/2, canvasH/2, P3D);
   PJOGL.profile=1;
 }
 
@@ -102,18 +104,28 @@ void setup() {
 
 
   bMap = createGraphics(canvasPropertiesWidth, canvasPropertiesHeight, P3D);
+  bMap.beginDraw();
   bMap.noStroke();
+  bMap.endDraw();
+  
+  
   dMap = createGraphics(canvasPropertiesWidth, canvasPropertiesHeight, P3D);
+  dMap.beginDraw();
   dMap.noStroke();
+  dMap.endDraw();
+  
   flash = createGraphics(canvasPropertiesWidth, canvasPropertiesHeight, P3D);
+  flash.beginDraw();
   flash.noStroke();
+  flash.endDraw();
   info = createGraphics(infoPropertiesWidth, infoPropertiesHeight, P3D);
 
   infoContent();
 
 
   // load csv
-  Table csv = loadData("data/natural_disaster_human_mobility_rammasun.csv");
+  //Table csv = loadData("data/natural_disaster_human_mobility_rammasun.csv");
+  Table csv = loadData("data/rammasun_sample_1000.csv");
 
   println(csv);
 
@@ -125,21 +137,28 @@ void setup() {
   // format entries, calculate coordinates, sort entries
   data = formatData(csv, mapProperties);
 
-
-
   // slice data into before/during arrays
   //before = data.slice(39563, 257670); // 2014-07-02 - 2014-07-11
   //during = data.slice(257670, 521008); // 2014-07-12 - 2014-07-21
   // console.log(before, during);
-  before = new ArrayList<Tweet>(data.subList(39563, 257670));
-  during = new ArrayList<Tweet>(data.subList(257670, 521008));
-
+  
+  Date splitDate = new Date(2014,6,11);
+  Date test = new Date(2014,6,11);
+  println("splitDate");
+  println(splitDate);
+  
+  int result = test.compareTo(splitDate);
+  println("result: " + result);
+  before = new ArrayList<Tweet>();
+  during = new ArrayList<Tweet>();
+  for(Tweet t : data){
+    
+  }
 
   frameRate(fr);
 
   println("before.length " + before.size() );
   println("during.length " + during.size() );
-
 
   //ready = false;
   ready = true;
@@ -147,6 +166,10 @@ void setup() {
 
 void draw() {
 
+  
+  if(frameCount%10 == 0){
+    println("fps: " + frameRate);
+  }
   if (!ready) {
     return;
   }
@@ -155,10 +178,8 @@ void draw() {
 
   // clear flash canvas
   flash.beginDraw();
-  bMap.beginDraw();
-  dMap.beginDraw();
-
   flash.clear();
+  flash.endDraw();
 
   // calculate current time based on frame rate
   float currentTime = (timestamp / fr) * 1000;
@@ -175,6 +196,7 @@ void draw() {
     // while (currentTweet != null && currentTweet.timelineMs <= currentTime) {
     while (bIndex < (before.size()-1) && currentTweet.timelineMs <= currentTime) {
       // create "blurry" permanent dots
+      bMap.beginDraw();
       bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 50);
       bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 3, 3);
       bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 30);
@@ -183,10 +205,13 @@ void draw() {
       bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 10, 10);
       bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 10);
       bMap.ellipse(currentTweet.positionX, currentTweet.positionY, 15, 15);
+      bMap.endDraw();
 
       // create temporary, flashing points
+      flash.beginDraw();
       flash.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 75);
       flash.ellipse(currentTweet.positionX, currentTweet.positionY, 20, 20);
+      flash.endDraw();
 
       bIndex++;
       currentTweet = before.get(bIndex);
@@ -215,6 +240,7 @@ void draw() {
     //while (currentTweet != null && currentTweet.timelineMs <= currentTime) {
     while (dIndex < (during.size()-1) && currentTweet.timelineMs <= currentTime) {
       // create "blurry" permanent dots
+      dMap.beginDraw();
       dMap.fill(cRed[0], cRed[1], cRed[2], 50);
       dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 3, 3);
       dMap.fill(cRed[0], cRed[1], cRed[2], 30);
@@ -223,10 +249,13 @@ void draw() {
       dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 10, 10);
       dMap.fill(cRed[0], cRed[1], cRed[2], 10);
       dMap.ellipse(currentTweet.positionX, currentTweet.positionY, 15, 15);
+      dMap.endDraw();
 
       // create temporary, flashing points
+      flash.beginDraw();
       flash.fill(cRed[0], cRed[1], cRed[2], 75);
       flash.ellipse(currentTweet.positionX, currentTweet.positionY, 20, 20);
+      flash.endDraw();
 
       dIndex++;
       currentTweet = during.get(dIndex);
@@ -238,11 +267,6 @@ void draw() {
     }
   }
 
-  flash.endDraw();
-  bMap.endDraw();
-  dMap.endDraw();
-  
-  
   canvas.beginDraw();
   canvas.background(0);
 
@@ -400,8 +424,8 @@ void draw() {
     infoPropertiesY + 810
     );
 
-canvas.endDraw();
-image(canvas,0,0, width, height);
+  canvas.endDraw();
+  image(canvas, 0, 0, width, height);
   // playback speed
   timestamp = timestamp + 15000;
 
@@ -417,41 +441,43 @@ image(canvas,0,0, width, height);
 void createBackground(float x, float y, float w, float h, color inner, color outer) {
 
   canvasBackground.beginDraw();
-  canvasBackground.background(0, 255, 0);
+
+
+  //BEGINCOMMENT
+  println("createBackground 1 ");
+  // create radial gradient
+  canvasBackground.noStroke();
+  println("createBackground 2 ");
+  canvasBackground.fill(0);
+  println("createBackground 3 ");
+  for (int i = max((int)w, (int)h); i > 0; i--) {
+    println("createBackground i " + i);
+    float step = i / max(w, h);
+    println("createBackground i step " + step);
+    color col = lerpColor(inner, outer, step);
+    println("createBackground i col " + col);
+    canvasBackground.fill(col);
+    println("createBackground i ellipse ");
+    //canvasBackground.ellipse(x, y, step * w, step * h);
+    canvasBackground.ellipse(0, 0, 100, 100);
+    println("createBackground i end ");
+  }
+  println("createBackground 4 ");
+  // create grid
+  canvasBackground.noFill();
+  println("createBackground 5 ");
+  canvasBackground.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2], 10);
+  println("createBackground 6 ");
+  for (float xx = 0; xx < width; xx += width / 128.0) {
+    println("createBackground xx " + xx);
+    canvasBackground.line(xx, 0, xx, height);
+  }
+  for (float yy = 0; yy < height; yy += height / 18.0) {
+    println("createBackground yy " + yy);
+    canvasBackground.line(0, yy, width, yy);
+  }
+
   canvasBackground.endDraw();
-  ////BEGINCOMMENT
-  // println("createBackground 1 ");
-  // // create radial gradient
-  // canvasBackground.noStroke();
-  //  println("createBackground 2 ");
-  // canvasBackground.fill(0);
-  //  println("createBackground 3 ");
-  // for (int i = max((int)w, (int)h); i > 0; i--) {
-  //    println("createBackground i " + i);
-  //   float step = i / max(w, h);
-  //    println("createBackground i step " + step);
-  //    color col = lerpColor(inner, outer, step);
-  //    println("createBackground i col " + col);
-  //   canvasBackground.fill(col);
-  //    println("createBackground i ellipse ");
-  //   //canvasBackground.ellipse(x, y, step * w, step * h);
-  //    canvasBackground.ellipse(0, 0, 100,100);
-  //    println("createBackground i end ");
-  // }
-  //println("createBackground 4 ");
-  // // create grid
-  // canvasBackground.noFill();
-  //  println("createBackground 5 ");
-  // canvasBackground.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2], 10);
-  //  println("createBackground 6 ");
-  // for (float xx = 0; xx < width; xx += width / 128.0) {
-  //    println("createBackground xx " + xx);
-  //   canvasBackground.line(xx, 0, xx, height);
-  // }
-  // for (float yy = 0; yy < height; yy += height / 18.0) {
-  //   println("createBackground yy " + yy);
-  //   canvasBackground.line(0, yy, width, yy);
-  // }
 
   // //ENDCOMMENT
   println("createBackground end ");
@@ -615,33 +641,5 @@ class MapProperties {
     this.mapCenterX  = x;
     this.mapCenterY = y;
     this.mapScale = s;
-  }
-}
-
-
-class Tweet  implements Comparable<Tweet> {
-  float lon;
-  float lat;
-  String timeString;
-  String dateTime;
-  Date timestamp;
-  float timelineMs;
-  float positionX;
-  float positionY;
-
-  Tweet(float lon, float lat, String timeString, Date timestamp, float timelineMs, float positionX, float positionY) {
-    this.lon = lon;
-    this.lat = lat;
-    this.timeString = timeString;
-    this.dateTime = timeString;
-    this.timestamp = timestamp;
-    this.timelineMs = timelineMs;
-    this.positionX = positionX;
-    this.positionY = positionY;
-  }
-
-  @Override
-    public int compareTo(Tweet o) {
-    return this.timestamp.compareTo(o.timestamp);
   }
 }
