@@ -185,10 +185,10 @@ void setup() {
 void draw() {
 
   // calculate current time based on frame rate
-   currentTime = (timestamp / fr) * 1000;
+  currentTime = (timestamp / fr) * 1000;
 
   //println(currentTime);
-  
+
   drawBMap();
   drawDMap();
 
@@ -253,7 +253,6 @@ void draw() {
   }
   canvas.noStroke();
 
-
   // playback speed
   timestamp = timestamp + 15000;
 
@@ -266,7 +265,7 @@ void draw() {
 }
 
 
-void drawBMap(){
+void drawBMap() {
 
   // add dots before catastrophe
   if (phase.equals("before")) {
@@ -299,13 +298,13 @@ void drawBMap(){
 }
 
 
-void drawDMap(){
-// add dots during catastrophe
+void drawDMap() {
+  // add dots during catastrophe
   if (phase.equals("during")) {
     dMap.beginDraw();
     while (dIndex<during.size()-1 && during.get(dIndex).timelineMs <= currentTime) {
       // create "blurry" permanent dots
-      
+
       Tweet current = before.get(dIndex);
       dMap.fill(cRed[0], cRed[1], cRed[2], 50);
       dMap.ellipse(current.positionX, current.positionY, 3, 3);
