@@ -87,26 +87,21 @@ void setup() {
   textFont(fontRegular);
 
   // create offscreen canvases
-  canvasBackground = createGraphics(400,300, P3D);
+  canvasBackground = createGraphics(canvas.width,canvas.height, P3D);
   color c1 = color(cLightBlue[0], cLightBlue[1], cLightBlue[2]);
   color c2 = color(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2]);
   
-  canvasBackground.beginDraw();
-  canvasBackground.background(255,0,0);
-  canvasBackground.endDraw();
+
   
-
-
-  //createBackground(
-  //  (float)canvas.width / 2.0, 
-  //  (float)canvas.height / 2.0, 
-  //  (float)canvas.width * 1.2f, 
-  //  (float)canvas.width * 1.2f, 
-  //  c1, 
-  //  c2
-  //  );
-    
-    canvasBackground.get().save("canvasBackground2.png");
+  createBackground(
+    (float)canvas.width / 2.0, 
+    (float)canvas.height / 2.0, 
+    (float)canvas.width * 1.2f, 
+    (float)canvas.width * 1.2f, 
+    c1, 
+    c2
+    );
+   
 
 
   bMap = createGraphics(canvasPropertiesWidth, canvasPropertiesHeight, P3D);
@@ -182,6 +177,7 @@ void setup() {
 void draw(){
   canvas.beginDraw();
   canvas.background(255,0,0);
+  canvas.image(canvasBackground,0,0);
   canvas.endDraw();
    
   image(canvas,0,0,width,height);
