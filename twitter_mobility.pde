@@ -21,6 +21,7 @@ PGraphics dMap;
 PGraphics flash; 
 PGraphics canvasBackground;
 PGraphics info;
+PImage backgroundImage;
 
 
 //var canvasProperties = {
@@ -77,9 +78,9 @@ void settings()
 }
 
 void setup() {
-  
- 
-  
+
+
+
   canvas = createGraphics(canvasW, canvasH, P3D);
 
   fontRegular = createFont("assets/ShareTechMono.ttf", 54);
@@ -87,21 +88,22 @@ void setup() {
   textFont(fontRegular);
 
   // create offscreen canvases
-  canvasBackground = createGraphics(canvas.width,canvas.height, P3D);
+  canvasBackground = createGraphics(canvas.width, canvas.height, P3D);
   color c1 = color(cLightBlue[0], cLightBlue[1], cLightBlue[2]);
   color c2 = color(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2]);
-  
 
-  
-  createBackground(
-    (float)canvas.width / 2.0, 
-    (float)canvas.height / 2.0, 
-    (float)canvas.width * 1.2f, 
-    (float)canvas.width * 1.2f, 
-    c1, 
-    c2
-    );
-   
+
+  backgroundImage = loadImage("assets/background.png");
+  //load background image instead of creating it
+  //createBackground(
+  //  (float)canvas.width / 2.0, 
+  //  (float)canvas.height / 2.0, 
+  //  (float)canvas.width * 1.2f, 
+  //  (float)canvas.width * 1.2f, 
+  //  c1, 
+  //  c2
+  //  );
+
 
 
   bMap = createGraphics(canvasPropertiesWidth, canvasPropertiesHeight, P3D);
@@ -126,9 +128,10 @@ void setup() {
 
   // load csv
   //Table csv = loadData("data/natural_disaster_human_mobility_rammasun.csv");
-  Table csv = loadData("data/rammasun_sample_1000.csv");
+  // Table csv = loadData("data/rammasun_sample_1000.csv");
+  Table csv = loadData("data/rammasun_in_dates.csv");
 
-  println(csv);
+  //println(csv);
 
 
   // calculate map scale
@@ -165,6 +168,10 @@ void setup() {
     }
   }
 
+  //for(Tweet t: before){
+  //  println("t.timelineMs: " + t.timelineMs);
+  //}
+
   frameRate(fr);
 
   println("before.length " + before.size() );
@@ -174,18 +181,119 @@ void setup() {
   ready = true;
 }
 
-void draw(){
+void draw() {
+
+  // calculate current time based on frame rate
+  float currentTime = (timestamp / fr) * 1000;
+
+  //println(currentTime);
+
+  // add dots before catastrophe
+  if (phase.equals("before")) {
+    bMap.beginDraw();
+    while (bIndex<before.size() && before.get(bIndex).timelineMs<=currentTime) {
+      //println("drawing before " + bIndex + ", " + before.size());
+      // create "blurry" permanent dots
+      Tweet current = before.get(bIndex);
+      // println("current.timelineMs " + current.timelineMs + ", Date: " + current.timeString);
+      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 50);
+      bMap.ellipse(current.positionX, current.positionY, 3, 3);
+      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 30);
+      bMap.ellipse(current.positionX, current.positionY, 6, 6);
+      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 20);
+      bMap.ellipse(current.positionX, current.positionY, 10, 10);
+      bMap.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 10);
+      bMap.ellipse(current.positionX, current.positionY, 15, 15);
+      //bMap.fill(0);
+      //bMap.ellipse(current.positionX, current.positionY, 10, 10);
+
+      bIndex++;
+    }
+    bMap.endDraw();
+    // end of before array
+    if (bIndex>=before.size()) {
+      phase = "during";
+      println(phase);
+    }
+  }
+
+
+
   canvas.beginDraw();
-  canvas.background(255,0,0);
-  canvas.image(canvasBackground,0,0);
+  canvas.background(255, 0, 0);
+
+  // display centecRed background gradient canvas
+  canvas.imageMode(CORNER);
+  canvas.image(backgroundImage, 0, 0);
+
+  // display bMap, dMap and flash canvas
+  canvas.image(bMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
+  //canvas.image(dMap, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
+  //canvas.image(flash, 1920, 0, 1920 * 3, 1080, 950, 1800, 1920 * 3, 1080);
+
+  // definition figure
+  canvas.rectMode(CORNER);
+  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+  canvas.strokeWeight(1);
+  canvas.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+  canvas.rect(2080, 80, 300, 20);
+  canvas.fill(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2], 220);
+  canvas.rect(2080, 100, 300, 100);
+  canvas.noStroke();
+
+  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+  canvas.ellipse(2110, 130, 20, 20);
+  canvas.fill(cRed[0], cRed[1], cRed[2]);
+  canvas.ellipse(2110, 170, 20, 20);
+
+  canvas.textSize(20);
+  canvas.textAlign(LEFT, TOP);
+  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+  canvas.text("tweets before typhoon", 2110 + 20, 118);
+  canvas.fill(cRed[0], cRed[1], cRed[2]);
+  canvas.text("tweets during typhoon", 2110 + 20, 158);
+
+
+  // display info table
+  canvas.imageMode(CORNER);
+  canvas.image(info, infoPropertiesX, infoPropertiesY);
+
+
+  // mini map city label
+  canvas.textAlign(LEFT, TOP);
+  canvas.textSize(30);
+  canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+  canvas.text("Manila, Philippines", 460, 265);
+
+  // detail area indicator rectangle
+  canvas.rectMode(CORNER);
+  canvas.noFill();
+  canvas.strokeWeight(4);
+  if (phase.equals("before")) {
+    canvas.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+  } else {
+    canvas.stroke(cRed[0], cRed[1], cRed[2]);
+  }
+  if (!phase.equals("end")) {
+    canvas.rect(420, 470, 1080, 202);
+  }
+  canvas.noStroke();
+
+
+  // playback speed
+  timestamp = timestamp + 15000;
+
+  canvas.textSize(50);
+  canvas.fill(255);
+  canvas.text("Phase: " + phase, 600, 100);
+
   canvas.endDraw();
-   
-  image(canvas,0,0,width,height);
+  image(canvas, 0, 0, width, height);
 }
 
 //void draw() {
-  
-  
+
+
 //  if (frameCount%10 == 0) {
 //    println("fps: " + frameRate);
 //  }
@@ -456,7 +564,7 @@ void draw(){
 void createBackground(float x, float y, float w, float h, color inner, color outer) {
 
   canvasBackground.beginDraw();
-  canvasBackground.background(255,0,0);
+  canvasBackground.background(255, 0, 0);
 
   //BEGINCOMMENT
   println("createBackground 1 ");
@@ -502,14 +610,13 @@ ArrayList<Tweet> formatData(Table csv, MapProperties mapProperties) {
   //var startTime = Date.parse("2014-07-02 03:00:32");
 
   ArrayList<Tweet> tweets = new ArrayList<Tweet>();
-
-  Date startTime = new Date(2014, 
-    7, 
-    2, 
-    3, 
-    0, 
-    32);
-
+  Date startTime = null;
+  try {
+    startTime = df.parse("2014-07-02 03:00:32");
+  } 
+  catch (ParseException excpt) { 
+    excpt.printStackTrace();
+  } 
 
   for (TableRow row : csv.rows()) {
 
@@ -524,6 +631,16 @@ ArrayList<Tweet> formatData(Table csv, MapProperties mapProperties) {
       excpt.printStackTrace();
     } 
     float timelineMs = timestamp.getTime() - startTime.getTime();
+
+    if (timeString.equals("2014-07-09 19:04:58")) {
+      println("startTime ");
+      println(startTime);
+      println("timestamp");
+      println(timestamp);
+      println("timestamp.getTime()", timestamp.getTime());
+      println("startTime.getTime()", startTime.getTime());
+      println("timelineMs", timelineMs);
+    }
     float positionX =  (lon - mapProperties.mapCenterX) *
       mapProperties.mapScale +
       canvasPropertiesWidth / 2;

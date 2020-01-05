@@ -5,7 +5,7 @@ class Tweet  implements Comparable<Tweet> {
   String timeString;
   String dateTime;
   Date timestamp;
-  float timelineMs;
+  float timelineMs = 0;
   float positionX;
   float positionY;
 

@@ -15,4 +15,4 @@ df_sample = df.sample(n=10000)
 
 print(df_sample)
 
-df_sample.to_csv('./rammasun_sample_10000.csv', index=False)
+df.to_csv('./rammasun_in_dates.csv', index=False)
