@@ -74,7 +74,7 @@ float currentTime = 0;
 // Processing Standard Functions
 void settings() 
 {
-  size(canvasW/3, canvasH/3, P3D);
+  size(canvasW/2, canvasH/2, P3D);
   PJOGL.profile=1;
 }
 
@@ -191,11 +191,11 @@ void draw() {
 
   drawBMap();
   drawDMap();
-  drawFlash();
+ // drawFlash();
 
 
   canvas.beginDraw();
-  canvas.background(255, 0, 0);
+ // canvas.background(255, 0, 0);
 
   // display centecRed background gradient canvas
   canvas.imageMode(CORNER);
@@ -227,11 +227,36 @@ void draw() {
   canvas.text("tweets before typhoon", 2110 + 20, 118);
   canvas.fill(cRed[0], cRed[1], cRed[2]);
   canvas.text("tweets during typhoon", 2110 + 20, 158);
+  
+  // ending overlay
+  if (phase.equals("end")) {
+     canvas.rectMode(CORNER);
+     canvas.fill(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2], fadeOut);
+     canvas.rect(0, 0,  canvas.width,  canvas.height);
+     canvas.rectMode(CENTER);
+     canvas.textSize(72);
+     canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], fadeOut);
+     canvas.textAlign(CENTER, CENTER);
+     canvas.text("play  again",  canvas.width / 2,  canvas.height / 2);
+
+    if (fadeOut <= 220) {
+      fadeOut += 2;
+    } else {
+      // capturer.stop();
+      // capturer.save();
+    }
+  }
 
 
   // display info table
   canvas.imageMode(CORNER);
   canvas.image(info, infoPropertiesX, infoPropertiesY);
+
+
+  // display bMap and dMap mini maps
+  canvas.imageMode(CENTER);
+  canvas.image(bMap, 960, 540, 1920 * 0.75, 1080 * 0.75, 0, 0, 1920 * 4, 1080 * 4);
+  canvas.image(dMap, 960, 540, 1920 * 0.75, 1080 * 0.75, 0, 0, 1920 * 4, 1080 * 4);
 
 
   // mini map city label
@@ -253,6 +278,79 @@ void draw() {
     canvas.rect(420, 470, 1080, 202);
   }
   canvas.noStroke();
+  
+  // get current number of tweets, format with thousand seperator
+  //int noTweets = (bIndex + dIndex)
+  //  .toString()
+  //  .replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  
+  String noTweets = nfc(bIndex + dIndex);
+
+  // get current date and time (timestamp)
+  String displayDate;
+  if (phase.equals("before")) {
+    displayDate = before.get(bIndex).dateTime;
+  } else if (phase.equals("during")) {
+    displayDate = during.get(dIndex).dateTime;
+  } else {
+    // last date
+    displayDate = during.get(during.size() - 1).dateTime;
+  }
+
+  // split timestamp into date and time
+  
+  String [] tokens = split(displayDate," ");
+  String displayDateDay = tokens[0];
+  String displayDateTime = tokens[1];
+
+  // display tweet counter, date and time
+  canvas.fill(cDarkBlue[0], cDarkBlue[1], cDarkBlue[2], 220);
+  canvas.strokeWeight(1);
+  canvas.rectMode(CORNER);
+  if (phase.equals("before")) {
+    canvas.stroke(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+  } else {
+    canvas.stroke(cRed[0], cRed[1], cRed[2]);
+  }
+  canvas.rect(infoPropertiesX, infoPropertiesY + 700, info.width / 2, 135);
+  canvas.rect(
+    infoPropertiesX + info.width / 2,
+    infoPropertiesY + 700,
+    info.width / 2,
+    135
+  );
+  if (phase.equals("before")) {
+    canvas.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2]);
+  } else {
+    canvas.fill(cRed[0], cRed[1], cRed[2]);
+  }
+  canvas.noStroke();
+  canvas.rect(infoPropertiesX, infoPropertiesY + 700, info.width, 20);
+  canvas.textSize(30);
+  canvas.textAlign(LEFT, BASELINE);
+  canvas.text("Nº tweets", infoPropertiesX + 20, infoPropertiesY + 810);
+  canvas.text(
+    "Date",
+    infoPropertiesX + infoPropertiesWidth / 2 + 20,
+    infoPropertiesY + 810
+  );
+  canvas.textSize(38);
+  canvas.textAlign(RIGHT, BASELINE);
+  canvas.text(
+    noTweets,
+    infoPropertiesX + infoPropertiesWidth / 2 - 20,
+    infoPropertiesY + 810
+  );
+  canvas.text(
+    displayDateTime,
+    infoPropertiesX + infoPropertiesWidth - 20,
+    infoPropertiesY + 770
+  );
+  canvas.text(
+    displayDateDay,
+    infoPropertiesX + infoPropertiesWidth - 20,
+    infoPropertiesY + 810
+  );
 
   // playback speed
   timestamp = timestamp + 15000;
@@ -270,7 +368,7 @@ void drawBMap() {
 
   // add dots before catastrophe
   if (phase.equals("before")) {
-    
+
     ArrayList<Tweet> flashTweets = new ArrayList<Tweet>();
     bMap.beginDraw();
     while (bIndex<before.size()-1 && before.get(bIndex).timelineMs<=currentTime) {
@@ -288,26 +386,26 @@ void drawBMap() {
       bMap.ellipse(current.positionX, current.positionY, 15, 15);
       //bMap.fill(0);
       //bMap.ellipse(current.positionX, current.positionY, 10, 10);
-      
-      
+
+
       flashTweets.add(current);
-     
+
       bIndex++;
     }
     bMap.endDraw();
-    
+
     //draw flashes
-    
-     flash.beginDraw();
-     flash.clear();
-    for(Tweet t: flashTweets){
-    // create temporary, flashing points
+
+    flash.beginDraw();
+    flash.clear();
+    for (Tweet t : flashTweets) {
+      // create temporary, flashing points
       flash.fill(cTurquoise[0], cTurquoise[1], cTurquoise[2], 75);
       flash.ellipse(t.positionX, t.positionY, 20, 20);
     }
     flash.endDraw();
-      
-    
+
+
     // end of before array
     if (bIndex>=before.size()-1) {
       phase = "during";
@@ -320,11 +418,13 @@ void drawBMap() {
 void drawDMap() {
   // add dots during catastrophe
   if (phase.equals("during")) {
+
+    ArrayList<Tweet> flashTweets = new ArrayList<Tweet>();
     dMap.beginDraw();
     while (dIndex<during.size()-1 && during.get(dIndex).timelineMs <= currentTime) {
       // create "blurry" permanent dots
 
-      Tweet current = before.get(dIndex);
+      Tweet current = during.get(dIndex);
       dMap.fill(cRed[0], cRed[1], cRed[2], 50);
       dMap.ellipse(current.positionX, current.positionY, 3, 3);
       dMap.fill(cRed[0], cRed[1], cRed[2], 30);
@@ -334,9 +434,24 @@ void drawDMap() {
       dMap.fill(cRed[0], cRed[1], cRed[2], 10);
       dMap.ellipse(current.positionX, current.positionY, 15, 15);
 
+
+
+      flashTweets.add(current);
       dIndex++;
     }
     dMap.endDraw();
+
+    //draw flashes
+
+    flash.beginDraw();
+    flash.clear();
+    for (Tweet t : flashTweets) {
+      // create temporary, flashing points
+      flash.fill(cRed[0], cRed[1], cRed[2], 75);
+      flash.ellipse(t.positionX, t.positionY, 20, 20);
+    }
+    flash.endDraw();
+
     // end of during array
     if (dIndex>=during.size()-1) {
       phase = "end";
@@ -346,9 +461,7 @@ void drawDMap() {
 }
 
 
-void drawFlash(){
 
-}
 
 //void draw() {
 
